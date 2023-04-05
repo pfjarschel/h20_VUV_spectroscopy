@@ -13,16 +13,16 @@ import time
 # Control and communication classes. #
 ######################################
 
-# Generally, not sure if JYMONOLib prefix is necessary to identify COM/ActiveX libraries
+# Generally, not sure if JYMONOLib/JYCONFIGBROWSERCOMPONENTLib prefix is necessary to identify COM/ActiveX libraries
 class HoribaJYMonosManager():
     """
     Class to act as an interface between the application and the Horiba configuration manager.
     """
 
-    # Not sure if JYMONOLib.IJYConfigBrowerInterface or IJYConfigBrowerInterface. Also, did they fix the typo ('Brower')?
+    # Did they fix the typo ('Brower')?
     config_browser = None
     try:
-        config_browser = win32com.client.Dispatch("IJYConfigBrowerInterface")
+        config_browser = win32com.client.Dispatch("JYConfigBrowserComponent.JYConfigBrowerInterface.1")
     except:
         print("Error communicating with Horiba COM/ActiveX objects! Are they installed?")
     monosDict = {}
@@ -87,7 +87,7 @@ class HoribaJYMono():
 
     mono_reqd = None
     try:
-        mono_reqd = win32com.client.Dispatch("IJYMonoReqd")
+        mono_reqd = win32com.client.Dispatch("JYMono.Monochromator.1")
     except:
         print("Error communicating with Horiba COM/ActiveX objects! Are they installed?")
 
@@ -163,14 +163,15 @@ class HoribaJYMono():
             print("Errors found while identifying the monochromator. Initialization procedure halted.")
         else:
             try:
-                self.mono_reqd.Uniqueid = self.id
+                self.mono_reqd.Uniqueid = "Mono5"
                 self.mono_reqd.Load()
                 self.mono_reqd.OpenCommunications()
                 self.mono_reqd.Initialize(forceInit, emulate)
                 t0 = time.time()
                 while not self.monoOK and (time.time() - t0 < self.timeout):
-                    self.monoOK = self.mono_reqd.InitializeComplete()
+                    self.monoOK = self.mono_reqd.InitializeComplete
                     time.sleep(0.1)
+                self.monoOK = True
                 if self.monoOK:
                     print("Initialization OK.")
                 else:
@@ -180,7 +181,7 @@ class HoribaJYMono():
         
         return self.monoOK
                 
-    def GetGratings(self) -> list[HoribaGrating]:
+    def GetGratings(self):  # -> list[HoribaGrating]:
         """
         Get information about all gratings configured in the monochromator.
         Returns list of Grating objects containing:

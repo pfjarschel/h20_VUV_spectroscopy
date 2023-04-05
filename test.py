@@ -6,8 +6,10 @@ monoman = HoribaJYMonosManager()
 monos = monoman.GetMonos()
 print(monos)
 
-mono = HoribaJYMono()
+mono = HoribaJYMono(name="H20UVL samba")
 mono.Initialize()
+
+mono.SetWavelength(600)
 
 gratings = mono.GetGratings()
 curr_grating = mono.GetCurrentGratingTurret()
@@ -18,7 +20,8 @@ mirror0_pos = mono.GetMirrorPos(0)
 mirror1_pos = mono.GetMirrorPos(1)
 
 print(gratings)
-print(gratings[0])
+for g in gratings:
+    print(g)
 print(curr_grating)
 print(wl)
 print(mono.slitWidths)

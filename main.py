@@ -57,8 +57,8 @@ class MainWindow(FormUI, WindowUI):
         self.setWindowIcon(QIcon("spectrum.ico"))
 
         # Devices
-        self.osc = None
-        self.mono = None
+        self.osc = MDO3034()
+        self.mono = self.mono = HoribaJYMono()
         QTimer.singleShot(100, Qt.CoarseTimer, self.InitializeDevices)
         self.loadSettings()
         self.UpdateGraph()
@@ -141,12 +141,13 @@ class MainWindow(FormUI, WindowUI):
                            "Additionally, the Python console output can offer more detailed information.\n\n")
         
         # Devices status
-        msg = QMessageBox()
-        msg.setIcon(QMessageBox.Critical)
-        msg.setText("Errors found while initializing devices:")
-        msg.setInformativeText(error_text)
-        msg.setWindowTitle("Error")
-        msg.exec_()
+        if len(error_text) > 0:
+            msg = QMessageBox()
+            msg.setIcon(QMessageBox.Critical)
+            msg.setText("Errors found while initializing devices:")
+            msg.setInformativeText(error_text)
+            msg.setWindowTitle("Error")
+            msg.exec_()
         
         statusmsg = ""
         if self.osc.oscOK and self.mono.monoOK:
@@ -212,7 +213,7 @@ class MainWindow(FormUI, WindowUI):
             else:
                 self.dbresults[self.sweepcount] = -200
             self.results[self.sweepcount] = calval
-            self.rawdataArray[self.sweepcount] = thisdatay            
+            # self.rawdataArray[self.sweepcount] = thisdatay            
             
             self.oscInd.setText(f"{thisvalue*1000:.3f} mV".rjust(10))
             self.UpdateGraph()

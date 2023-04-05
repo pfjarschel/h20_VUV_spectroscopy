@@ -17,7 +17,7 @@ class MDO3034:
     oscID = ""
     traceLength = 1001
     timescale = 10e-3
-    simulate = True
+    simulate = False
 
     # main functions
     def __init__(self):
@@ -69,7 +69,7 @@ class MDO3034:
             self.osc.write("DATA:WIDTH 1")
             self.osc.wrap_handler("DATA:ENC RPB")
 
-            self.traceLength = self.getTraceLength()
+            self.traceLength = self.GetTraceLength()
             
         return self.oscOK
 
@@ -118,17 +118,17 @@ class MDO3034:
                 nchan = 4
             self.osc.write(f"DATA:SOU CH{nchan}")
             
-            ymult = self.osc.query("WFMPRE:YMULT?")
-            yzero = self.osc.query("WFMPRE:YZERO?")
-            yoff = self.osc.query("WFMPRE:YOFF?")
-            xincr = self.osc.query("WFMPRE:XINCR?")
+            ymult = float(self.osc.query("WFMOUTPRE:YMULT?"))
+            yzero = float(self.osc.query("WFMOUTPRE:YZERO?"))
+            yoff = float(self.osc.query("WFMOUTPRE:YOFF?"))
+            xincr = float(self.osc.query("WFMOUTPRE:XINCR?"))
             
             self.osc.write("CURVE?")
             rawdata = self.osc.read_raw()
             headerlen = 2 + int(rawdata[1])
             header = rawdata[:headerlen]
             data = rawdata[headerlen:-1]
-            data = np.array(unpack("%sB" % len(data), data))
+            data = np.array(unpack("%sb" % len(data), data))
 
             yarray = (data - yoff)*ymult + yzero
             xarray = np.arange(0.0, xincr*len(yarray), xincr)
