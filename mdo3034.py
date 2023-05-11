@@ -142,3 +142,17 @@ class MDO3034:
             xarray = np.linspace(0.0, self.timescale*10, self.traceLength)
 
         return xarray, yarray
+
+    def GetMean(self, chan):
+        if self.oscOK:
+            nchan = int(np.mod(chan, 4))
+            if nchan == 0:
+                nchan = 4
+            #inserir comando para iniciar aquisição de um canal em específico.
+
+            #self.osc.write(f"DATA:SOU CH{nchan}")
+            self.osc.write(f"MEASUREMENT:IMMED:SOURCE1 ch{nchan}")
+            self.osc.write("MEASUREMENT:IMMED:TYPE MEAN")
+            mean = float(self.osc.query("MEASU:IMMED:VALUE?"))
+   
+        return mean

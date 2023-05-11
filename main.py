@@ -170,8 +170,9 @@ class MainWindow(FormUI, WindowUI):
     
     def monitorLoop(self):
         if self.inited:
-            datax, datay = self.osc.GetData(self.oscchanSpin.value())
-            val = np.mean(datay)
+            #datax, datay = self.osc.GetData(self.oscchanSpin.value())
+            #val = np.mean(datay)
+            val = self.osc.GetMean(self.oscchanSpin.value())
             self.oscInd.setText(f"{val*1000:.3f} mV".rjust(10))
 
             wl = self.mono.GetCurrentWavelength()
@@ -204,9 +205,9 @@ class MainWindow(FormUI, WindowUI):
 
     def measLoop(self):
         if self.sweeping and self.inited:
-            thisdatax, thisdatay = self.osc.GetData(self.oscchanSpin.value())
-            thisvalue = np.mean(thisdatay)
-            
+            #thisdatax, thisdatay = self.osc.GetData(self.oscchanSpin.value())
+            #thisvalue = np.mean(thisdatay)
+            thisvalue = self.osc.GetMean(self.oscchanSpin.value()) 
             calval = thisvalue/self.calSpin.value()    
             if calval > 0.0:
                 self.dbresults[self.sweepcount] = 10.0*np.log10(calval)
