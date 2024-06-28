@@ -44,6 +44,7 @@ class MainWindow(FormUI, WindowUI):
         self.rawdataArray = np.zeros([self.points, self.oscpoints])
         self.results = np.zeros([self.points])
         self.dbresults = np.zeros([self.points])
+        self.std_devs = np.zeros([self.points])
         self.sweepcount = 0
         self.sweeping = False
         self.sweep_t0 = time.time()
@@ -189,6 +190,7 @@ class MainWindow(FormUI, WindowUI):
             self.points = len(self.wlsArray)
             self.results = np.zeros([self.points])
             self.dbresults = np.zeros([self.points])
+            self.std_devs = np.zeros([self.points])
             self.oscpoints = self.osc.GetTraceLength()
             self.rawdataArray = np.zeros([self.points, self.oscpoints])
             self.mono.SetWavelength(self.startSpin.value())
@@ -206,6 +208,7 @@ class MainWindow(FormUI, WindowUI):
         if self.sweeping and self.inited:
             thisdatax, thisdatay = self.osc.GetData(self.oscchanSpin.value())
             thisvalue = np.mean(thisdatay)
+            thisstd_dev = np.std(thisdatay)
             
             calval = thisvalue/self.calSpin.value()    
             if calval > 0.0:
@@ -213,7 +216,9 @@ class MainWindow(FormUI, WindowUI):
             else:
                 self.dbresults[self.sweepcount] = -200
             self.results[self.sweepcount] = calval
-            # self.rawdataArray[self.sweepcount] = thisdatay            
+            # self.rawdataArray[self.sweepcount] = thisdatay    
+            
+            self.std_devs[self.sweepcount] = thisstd_dev        
             
             self.oscInd.setText(f"{thisvalue*1000:.3f} mV".rjust(10))
             self.UpdateGraph()
@@ -306,20 +311,21 @@ class MainWindow(FormUI, WindowUI):
                 f.create_dataset("Wavelength (nm)", data=self.wlsArray)
                 f.create_dataset("Power (mW)", data=self.results)
                 f.create_dataset("Power (dBm)", data=self.dbresults)
+                f.create_dataset("Std. dev", data=self.std_devs)
                 f.close()
                 self.statusbar.showMessage(f"Results saved")
         elif filename[-4:] == ".csv":
             with open(filename, 'w') as f:
-                f.write("Wavelength (nm),Power (mW),Power (dBm)\n")
+                f.write("Wavelength (nm),Power (mW),Power (dBm), Std. devs\n")
                 for i in range(self.points):
-                    f.write(f"{self.wlsArray[i]:.3f},{self.results[i]:.6f},{self.dbresults[i]:.6f}\n")
+                    f.write(f"{self.wlsArray[i]:.3f},{self.results[i]:.6f},{self.dbresults[i]:.6f},{self.std_devs[i]:.6f}\n")
                 f.close()
                 self.statusbar.showMessage(f"Results saved")
         elif len(filename) > 0:
             with open(filename, 'w') as f:
-                f.write("Wavelength (nm),Power (mW),Power (dBm)\n")
+                f.write("Wavelength (nm),Power (mW),Power (dBm), Std. devs\n")
                 for i in range(self.points):
-                    f.write(f"{self.wlsArray[i]:.3f},{self.results[i]:.6f},{self.dbresults[i]:.6f}\n")
+                    f.write(f"{self.wlsArray[i]:.3f},{self.results[i]:.6f},{self.dbresults[i]:.6f},{self.std_devs[i]:.6f}\n")
                 f.close()
                 self.statusbar.showMessage(f"Results saved")
     
